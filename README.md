@@ -51,9 +51,15 @@ Text returned from the API signed using bitcoin core ( see modification above ne
 
 <img width="758" alt="Screen Shot 2022-01-04 at 1 33 07 PM" src="https://user-images.githubusercontent.com/777379/148126726-e8bb496e-512b-4a8b-a0d1-63808e21d718.png">
 
-## Post star object to the API for insertion into the blockchain
+### Post star object to the API for insertion into the blockchain
 
 Payload includes wallet address and star object for adding to the private blockcchain
 
 <img width="986" alt="Screen Shot 2022-01-04 at 1 34 42 PM" src="https://user-images.githubusercontent.com/777379/148126881-65883ceb-d87a-4c0b-b762-957891941cb5.png">
+
+### Get star objects by owner
+
+Wallet address sent and an array of stars are retrieved that belong to owner
+
+<img width="961" alt="Screen Shot 2022-01-04 at 1 39 34 PM" src="https://user-images.githubusercontent.com/777379/148127344-4050e5c8-0065-4559-96fe-1d82921cdc28.png">
 
