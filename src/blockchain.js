@@ -67,21 +67,24 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             block.time = new Date().getTime().toString().slice(0, -3) //set time
             let oldLength = self.chain.length //grab old length for error handling
-
             block.height = self.chain.length // set block height, 
 
             if (self.height != -1) { //skip genesis block
                 block.previousBlockHash = self.chain[block.height - 1].hash
             }
 
-            block.hash = SHA256(JSON.stringify(block)).toString() //set hash            
-            this.chain.push(block) //add to chain
+            block.hash = SHA256(JSON.stringify(block)).toString() //set hash                        
+            self.chain.push(block) //add to chain
 
-            if (oldLength + 1 === self.chain.length) { //ensure the length incr
-                self.height = block.height //update the chain since block got added
+            let errorLog = await self.validateChain() //run validation
+            if ((errorLog.length > 0)) { //errors found  
+                self.chain.pop() //rollback the block addition 
+                reject("Unable to add block")
+            } else if (oldLength + 1 === self.chain.length) { // no errors and block added 
+                self.height = block.height
                 resolve(block)
             } else {
-                reject("Unable to add block")
+                reject("Unable to add block") //catch all case 
             }
         });
     }
@@ -120,18 +123,22 @@ class Blockchain {
      */
     submitStar(address, message, signature, star) {
         let self = this;
-
         return new Promise(async (resolve, reject) => {
             let messageTime = parseInt(message.split(':')[1])
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3))
             let elapsedTime = currentTime - messageTime //get seconds
+
             if (elapsedTime < TIME_WINDOW) { // are we under 5 min?
                 if (bitcoinMessage.verify(message, address, signature)) {
                     let block = new BlockClass.Block({ "owner": address, "star": star })
-                    self._addBlock(block)
-                    resolve(block)
-                } else {
-                    reject("SIG_ERR: Unable to add block, please try again.")
+                    try {
+                        let newblock = await self._addBlock(block)
+                        if (newblock) {
+                            resolve(block)
+                        }
+                    } catch {
+                        reject("SIG_ERR: Unable to add block, please try again.")
+                    }
                 }
             } else {
                 reject("TIME_OUT: Unable to add block, please try again.")
